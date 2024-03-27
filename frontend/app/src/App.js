@@ -125,5 +125,3 @@ function App() {
 }
 
 export default App;
-
-//121@test.com, 122@test.com, 123@test.com, 124@test.com, 125@test.com, 126@test.com, 127@test.com, 128@test.com, 129@test.com, 130@test.com
