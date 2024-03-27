@@ -1,0 +1,38 @@
+version: '3'
+services:
+  main-server:
+    depends_on:
+      - db-server
+    restart: always
+    build:
+      context: server
+      dockerfile: ./Dockerfile
+    ports:
+      - '3001:3001'
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      DB_HOSTNAME: "db-server"
+      DB_PORT: "27017"
+      VERIFY_EMAIL_LIMIT: "10"
+  db-server:
+    restart: always
+    build:
+      context: server/database
+      dockerfile: ./Dockerfile
+    ports:
+      - '27017:27017'
+    volumes:
+      - 'mongodbdata:/data/db'
+  frontend-server:
+    restart: always
+    build:
+      context: client
+      dockerfile: ./Dockerfile
+    ports:
+      - '3000:3000'
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  mongodbdata:
