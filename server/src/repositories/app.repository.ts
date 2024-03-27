@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Db, ObjectId, ReturnDocument } from 'mongodb';
-import { EmailModel, EmailToVerifyModel } from "./model/Emails.model";
+import { EmailModel, EmailToVerifyModel, EmailVerificationStatus } from "./model/Emails.model";
 
 @Injectable()
 export class AppRepository {
@@ -8,7 +8,7 @@ export class AppRepository {
 
   async saveEmails(emails: string[]): Promise<void> {
     const emailsToInsert = emails.map((email) => {
-      return { email, status: 'validating', createdAt: new Date() };
+      return { email, status: EmailVerificationStatus.Validating, createdAt: new Date() };
     });
 
     await this.db.collection('emails').insertMany(emailsToInsert);
