@@ -6,4 +6,4 @@ This application doesn't verify emails, it is just for test
 
 In the project directory you can run in console:
 
-### `docker compose up -d`
+##### `docker compose up -d`
