@@ -1,86 +1,15 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { AppRepository } from '../repositories/app.repository';
-import { EmailModel, EmailVerificationStatus } from "../repositories/model/Emails.model";
-
-function randomTimeToProcessInSeconds(minSeconds: number = 5, maxSeconds: number = 100) {
-  const randomSeconds = (Math.random() * (maxSeconds - minSeconds)) + minSeconds;
-  return Math.floor(randomSeconds);
-}
-
-function randomEmailVerificationStatus() {
-  const random = Math.floor(Math.random() * 2) + 1;
-  return random === 1
-    ? EmailVerificationStatus.Valid
-    : EmailVerificationStatus.Invalid;
-}
-
-async function emailVerificationStatusAsync(): Promise<string> {
-  const timeInSeconds = randomTimeToProcessInSeconds();
-
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const status = randomEmailVerificationStatus();
-      resolve(status);
-    }, timeInSeconds * 1000);
-  });
-}
-
-async function mockedEmailVerification(email: string): Promise<string> {
-  return await emailVerificationStatusAsync();
-}
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { EmailRepository } from '../../repositories/email.repository';
+import { EmailModel } from '../../repositories/model/emails.model.js';
+import { EmailVerificationService } from './emailVerification.service.js';
+import { EmailItemDto } from '../dto/email.dtos';
 
 @Injectable()
-export class AppService {
-  private readonly emailVerificationLimit: number;
-  private processingEmailIds: Set<string>;
-
+export class EmailService {
   constructor(
-    private readonly repository: AppRepository,
-    private readonly eventEmitter: EventEmitter2,
-  ) {
-    this.emailVerificationLimit = process.env.VERIFY_EMAIL_LIMIT && parseInt(process.env.VERIFY_EMAIL_LIMIT);
-    this.processingEmailIds = new Set();
-  }
-
-  private async verifyEmails(): Promise<void> {
-    if (this.processingEmailIds.size >= this.emailVerificationLimit) {
-      return;
-    }
-
-    const size = this.emailVerificationLimit - this.processingEmailIds.size;
-    const emails = await this.repository.getNextEmailsToVerify(size);
-
-    if (!emails.length) {
-      this.processingEmailIds.clear();
-      return;
-    }
-
-    for (let i = 0; i < emails.length; i++) {
-      const emailData = emails[i];
-      const id = emailData.id;
-
-      if (!this.processingEmailIds.has(id)) {
-        this.processingEmailIds.add(id);
-
-        mockedEmailVerification(emailData.email)
-          .then((status: string) => {
-            return this.repository.updateEmailStatus(emailData.id, status);
-          })
-          .then(({ id, email, status }) => {
-            this.processingEmailIds.delete(id);
-            this.eventEmitter.emit('emails.email_verification', { id, email, status });
-            this.verifyEmails().then(null);
-          })
-          .catch((err) => {
-            // if email verification failed - stop processing.
-            // TODO: implement manual restart for email verification process
-            this.processingEmailIds.clear();
-            console.error(err);
-          });
-      }
-    }
-  }
+    private readonly repository: EmailRepository,
+    private readonly emailVerificationService: EmailVerificationService,
+  ) {}
 
   async saveEmails(dto: { emails: string[] }): Promise<EmailModel[]> {
     const emailsExists = await this.repository.checkEmailsExists(dto.emails);
@@ -90,22 +19,22 @@ export class AppService {
 
     try {
       await this.repository.saveEmails(dto.emails);
-      const emails = await this.repository.getEmails(dto.emails);
-
-      this.verifyEmails().then(null);
-
-      return emails;
     } catch (err) {
-      console.error(err);
+      Logger.error(err.message);
       throw new Error('Failed to save emails');
     }
+
+    await this.emailVerificationService.addEmailsToVerify(dto.emails);
+    const emails = await this.repository.getEmails(dto.emails);
+    return emails.map((item) => EmailItemDto.fromEntity(item));
   }
 
-  async getEmails(): Promise<EmailModel[]> {
+  async getEmails(): Promise<EmailItemDto[]> {
     try {
-      return await this.repository.getEmails();
+      const emails = await this.repository.getEmails();
+      return emails.map((item) => EmailItemDto.fromEntity(item));
     } catch (err) {
-      console.error(err);
+      Logger.error(err.message);
       throw new Error('Failed to fetch emails');
     }
   }

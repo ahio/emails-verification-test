@@ -2,20 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ObjectId, ReturnDocument } from 'mongodb';
 import { MongoRepository } from 'typeorm';
-import {
-  EmailModel,
-  EmailToVerifyModel,
-  EmailVerificationStatus,
-} from './model/emails.model.js';
+import { EmailModel, EmailVerificationStatus } from './model/emails.model.js';
 import { EmailEntity } from './entities/email.entity.js';
 
 @Injectable()
-export class AppRepository {
+export class EmailRepository {
   constructor(
     @InjectRepository(EmailEntity) private readonly emailCollection: MongoRepository<EmailEntity>,
   ) {}
 
-  async saveEmails(emails: string[]): Promise<void> {
+  async saveEmails(emails: string[]): Promise<EmailModel[]> {
     const emailsToInsert = emails.map((emailName) => {
       const entity = new EmailEntity();
       entity._id = new ObjectId();
@@ -27,6 +23,7 @@ export class AppRepository {
     });
 
     await this.emailCollection.insertMany(emailsToInsert);
+    return await this.getEmails(emails);
   }
 
   async updateEmailStatus(email: string, status: string): Promise<EmailModel> {
@@ -43,16 +40,6 @@ export class AppRepository {
     }
 
     return EmailModel.fromRaw(updatedEmail.value);
-  }
-
-  async getNextEmailsToVerify(size: number): Promise<EmailToVerifyModel[]> {
-    const query = { status: 'validating' };
-    const params = {
-      where: query,
-      take: size
-    };
-    const emails = await this.emailCollection.find(params);
-    return emails.map((emailRaw) => EmailToVerifyModel.fromRaw(emailRaw));
   }
 
   async getEmails(emails?: string[]): Promise<EmailModel[]> {

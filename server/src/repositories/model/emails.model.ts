@@ -19,15 +19,3 @@ export class EmailModel {
     };
   }
 }
-
-export class EmailToVerifyModel {
-  id: string;
-  email: string;
-
-  static fromRaw(rawData): EmailToVerifyModel {
-    return {
-      id: rawData._id.toString(),
-      email: rawData.email,
-    };
-  }
-}
