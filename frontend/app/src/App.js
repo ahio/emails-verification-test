@@ -11,7 +11,7 @@ function App() {
 	useEffect(() => {
 		fetchEmails().then(null);
 		
-		const eventSource = new EventSource('http://localhost:3001/email-verification-status/sse');
+		const eventSource = new EventSource('http://localhost:3001/emails/verification-status/sse');
 		
 		const updateEmailStatus = (event) => {
 			const data = JSON.parse(event.data);
@@ -31,7 +31,7 @@ function App() {
 	
 	const fetchEmails = async () => {
 		try {
-			const response = await fetch('http://localhost:3001/emails');
+			const response = await fetch('http://localhost:3001/emails/list');
 			const data = await response.json();
 			
 			if (data?.length) {
