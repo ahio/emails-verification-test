@@ -64,32 +64,26 @@ function App() {
 			.map((email) => email.trim())
 			.filter(email => !emailsCollection.has(email) && validateEmail(email));
 		
-		if (emailsArray.length) {
-			try {
-				const response = await fetch('http://localhost:3001/emails/bulk', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					body: JSON.stringify({ emails: emailsArray })
-				});
-				
-				if (response.status !== 200) {
-					console.error(`Error: Failed to send emails. Reason: ${response.statusText}`);
-				} else {
-					const data = await response.json();
-					
-					emailsArray.forEach((email) => emailsCollection.add(email));
-					
-					setEmailList([...emailList, ...data]);
-				}
-			} catch (error) {
-				console.error('Failed to send emails');
-				console.error('Error:', error);
-			}
-		} else {
-			console.error('No valid emails to send');
+		if (!emailsArray.length) {
+			return;
 		}
+		
+		const response = await fetch('http://localhost:3001/emails/bulk', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ emails: emailsArray })
+		});
+		
+		if (response.status !== 200) {
+			console.error(`Error: Failed to send emails. Reason: ${response.statusText}`);
+			return;
+		}
+		
+		const data = await response.json();
+		emailsArray.forEach((email) => emailsCollection.add(email));
+		setEmailList([...emailList, ...data]);
 	};
 	
 	return (

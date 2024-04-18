@@ -8,6 +8,9 @@ services:
     build:
       context: server
       dockerfile: ./Dockerfile
+    entrypoint: "npm run start:dev"
+    volumes:
+      - ./server:/usr/src/app
     ports:
       - '3001:3001'
     extra_hosts:
@@ -20,9 +23,7 @@ services:
       VERIFY_EMAIL_LIMIT: "10"
   db-server:
     restart: always
-    build:
-      context: server/database
-      dockerfile: ./Dockerfile
+    image: mongo:6.0.14
     ports:
       - '27017:27017'
     volumes:
@@ -38,9 +39,7 @@ services:
       - "host.docker.internal:host-gateway"
   redis-server:
     restart: always
-    build:
-      context: server/redis
-      dockerfile: ./Dockerfile
+    image: redis:7.2.4
     ports:
       - '6379:6379'
 

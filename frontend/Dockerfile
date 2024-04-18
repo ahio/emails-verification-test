@@ -1,9 +1,9 @@
 FROM node:18.17.1-alpine
 
-WORKDIR /app
-COPY ./app /app
-
-RUN npm install
+WORKDIR /usr/src/app
+COPY ./app/package.json ./app/package-lock.json ./
+RUN npm ci
+COPY ./app .
 
 EXPOSE 3000
 

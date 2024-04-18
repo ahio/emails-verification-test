@@ -1,11 +1,12 @@
 FROM node:18.17.1-alpine
 
-WORKDIR /app
-COPY . /app
+WORKDIR /usr/src/app
 
+COPY ./package.json ./package-lock.json ./
 RUN npm ci
+
+COPY . .
 
 EXPOSE 3001
 
-#ENTRYPOINT ["npm", "start"]
-ENTRYPOINT ["npm", "run", "start:dev"]
+ENTRYPOINT ["npm", "start"]
