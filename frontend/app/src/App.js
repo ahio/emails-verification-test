@@ -24,7 +24,6 @@ function App() {
 		eventSource.addEventListener('email_verification', updateEmailStatus);
 		
 		return () => {
-			eventSource.removeEventListener('email_verification', updateEmailStatus);
 			eventSource.close();
 		};
 	}, []);

@@ -6,6 +6,20 @@ This enables the server to publish data to subscribers, allowing them to observe
 
 ## HOW TO START
 
-In the project directory you can run in console:
+In the project directory run in console:
 
 ##### `docker compose up -d`
+
+It will run frontend server on http://localhost:3000 and backend server on http://localhost:3001.
+
+### Tests
+
+In order to run backend tests in the project directory run in console:
+
+```
+// to create and start containers for backend server
+> docker compose up -d main-server
+
+// to run backend integration tests
+> docker compose run -e API_HOST='main-server' main-server npm run test
+```
