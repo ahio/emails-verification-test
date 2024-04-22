@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { EmailQueueProducer } from '../queues/producers/emailQueueProducer.service.js';
+import { EmailQueueProducer } from '../../queues/producers/emailQueueProducer.service.js';
 import { fakeEmailVerificationStatus } from '../utils/email.js';
 import { EmailRepository } from '../../repositories/email.repository';
 import { fromEvent, map, Observable } from 'rxjs';

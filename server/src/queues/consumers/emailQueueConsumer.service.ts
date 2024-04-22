@@ -1,6 +1,6 @@
 import { Processor, Process, OnQueueError } from '@nestjs/bull';
 import { Job } from 'bull';
-import { EmailVerificationService } from '../../email/emailVerification.service.js';
+import { EmailVerificationService } from '../../services/email/emailVerification.service';
 import { Logger } from '@nestjs/common';
 
 @Processor('emails')

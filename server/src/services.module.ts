@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { EmailService } from './services/email/email.service';
-import { EmailQueueProducer } from './services/queues/producers/emailQueueProducer.service';
+import { EmailQueueProducer } from './queues/producers/emailQueueProducer.service';
 import { EmailVerificationService } from './services/email/emailVerification.service';
-import { EmailQueueConsumer } from './services/queues/consumers/emailQueueConsumer.service';
+import { EmailQueueConsumer } from './queues/consumers/emailQueueConsumer.service';
 import { EntityModule } from './entity.module';
-import { QueueModule } from './services/queues/queue.module';
+import { QueueModule } from './queues/queue.module';
 
 @Module({
   imports: [QueueModule, EntityModule],
