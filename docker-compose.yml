@@ -10,7 +10,7 @@ services:
       dockerfile: ./Dockerfile
 #    entrypoint: "npm run start:dev"
     volumes:
-      - ./server:/usr/src/app
+      - ./server/src:/usr/src/app/src
     ports:
       - '3001:3001'
     extra_hosts:
