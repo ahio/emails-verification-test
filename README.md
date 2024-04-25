@@ -8,7 +8,9 @@ This enables the server to publish data to subscribers, allowing them to observe
 
 In the project directory run in console:
 
-##### `docker compose up -d`
+```
+> docker compose up -d
+```
 
 It will run frontend server on http://localhost:3000 and backend server on http://localhost:3001.
 
